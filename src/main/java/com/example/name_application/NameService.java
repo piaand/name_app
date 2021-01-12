@@ -12,10 +12,15 @@ public class NameService {
     }
 
     public Long getTotalAmountOfNames() {
-        return nameRepository.findTotalAmount();
+        Long result = nameRepository.findTotalAmount() != null ? nameRepository.findTotalAmount() : 0L;
+        return result;
     }
 
     public void saveNameFromJson(Name name) {
         nameRepository.save(name);
+    }
+
+    public void emptyDatabase() {
+        nameRepository.deleteAll();
     }
 }
