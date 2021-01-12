@@ -1,7 +1,9 @@
 package com.example.name_application;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sun.xml.bind.v2.runtime.output.SAXOutput;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -24,12 +26,17 @@ public class NameApplication {
 			ObjectMapper mapper = new ObjectMapper();
 			TypeReference<List<Name>> typeReference = new TypeReference<List<Name>>(){};
 			InputStream inputStream = TypeReference.class.getResourceAsStream("/json/names.json");
+
 			try {
-				List<Name> names = mapper.readValue(inputStream,typeReference);
+				JsonNode nameObj = mapper.readTree(inputStream);
+				JsonNode listNames = nameObj.get("names");
+				System.out.println(listNames);
+				List<Name> names = mapper.convertValue(listNames, typeReference);
 				for(Name name : names) {
 					nameService.saveNameFromJson(name);
+					System.out.println(name + " saved to db!");
 				}
-			} catch (IOException e){
+			} catch (Exception e){
 				System.out.println("Unable to save users: " + e.getMessage());
 			}
 		};
