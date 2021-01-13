@@ -7,6 +7,9 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.AbstractPersistable;
 import javax.persistence.Column;
 
+/**
+ * Data table Name representation as Java class. Every entry has an id type Long.
+ */
 @Entity
 @Data @AllArgsConstructor @NoArgsConstructor
 public class Name extends AbstractPersistable<Long> {

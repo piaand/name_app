@@ -12,6 +12,12 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.logging.Logger;
 
+/**
+ * Name application - application builds an API interface which provides access to a database of names.
+ * @author Pia Andersin
+ *
+ * At the start of the application, names are read from a json file and saved to database.
+ */
 @SpringBootApplication
 public class NameApplication {
 
@@ -27,11 +33,14 @@ public class NameApplication {
 		SpringApplication.run(NameApplication.class, args);
 	}
 
+	//CommandLineRunner reads the names from a file and saves them into the database.
 	@Bean
 	CommandLineRunner runner(NameService nameService) {
 		return args -> {
+			//Setting the logging configurations for the whole application.
 			configurations.setConfig();
 			logger.info("Start reading names from json file: " + filePath);
+
 			ObjectMapper mapper = new ObjectMapper();
 			TypeReference<List<Name>> typeReference = new TypeReference<List<Name>>(){};
 			InputStream inputStream = TypeReference.class.getResourceAsStream(filePath);

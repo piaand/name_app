@@ -2,6 +2,9 @@ package com.example.name_application;
 
 import org.springframework.stereotype.Service;
 
+/**
+ * NameServices uses NameRepository to fetch the data from database. Contains most of the service logic and CRUD methods.
+ */
 @Service
 public class NameService {
 
