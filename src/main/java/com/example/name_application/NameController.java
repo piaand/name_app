@@ -1,8 +1,11 @@
 package com.example.name_application;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * REST API controller. Collection of different end-points user may call.
@@ -26,6 +29,11 @@ public class NameController {
     @GetMapping("/names/{name}")
     public Long getName(@PathVariable String name) {
         return nameService.getGivenNameAmount(name);
+    }
+
+    @GetMapping("/names")
+    public JsonNode getNames() {
+        return nameService.getAllNamesAndAmounts();
     }
 
 }
