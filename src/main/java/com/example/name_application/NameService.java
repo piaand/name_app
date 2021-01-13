@@ -19,9 +19,11 @@ import java.util.logging.Logger;
 public class NameService {
     private static final Logger logger = Logger.getLogger(NameApplication.class.getName());
     private final NameRepository nameRepository;
+    private final NameWrapper wrapper;
 
-    public NameService(NameRepository nameRepository) {
+    public NameService(NameRepository nameRepository, NameWrapper wrapper) {
         this.nameRepository = nameRepository;
+        this.wrapper = wrapper;
     }
 
     public Long getTotalAmountOfNames() {
@@ -50,7 +52,7 @@ public class NameService {
         nameRepository.deleteAll();
     }
 
-    public ArrayNode turnNameListToJson(List<Name> names) {
+    public ArrayNode turnNameListToJson(List<NameWrapper> names) {
         if (names.isEmpty()) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "No name is found"
@@ -60,12 +62,10 @@ public class NameService {
                 logger.info("Start parsing list to json array");
                 ObjectMapper mapper = new ObjectMapper();
                 ArrayNode arrayNode = mapper.createArrayNode();
-                for (Name name : names) {
+                for (NameWrapper name : names) {
                     JsonNode node = mapper.convertValue(name, JsonNode.class);
-                    System.out.println(node);
                     arrayNode.add(node);
                 }
-                System.out.println(arrayNode);
                 return arrayNode;
             } catch (Exception e) {
                 logger.severe("Cannot return namelist as json. Error: " + e.getMessage());
@@ -78,10 +78,10 @@ public class NameService {
 
         public JsonNode getAllNamesAndAmounts() {
             try {
-                logger.info("Start finding all names");
-                List<Name> listNames = nameRepository.findAll();
-                logger.info("Names here: " + listNames);
-                return turnNameListToJson(listNames);
+                logger.info("Request to find all names and amounts in progress.");
+                List<Name> listNames = nameRepository.findAllByOrderByAmountDesc();
+                List<NameWrapper> wrappedNames= wrapper.convertNamesToWrappedNames(listNames);
+                return turnNameListToJson(wrappedNames);
             } catch (ConversionFailedException e) {
                 logger.severe("Cannot return namelist from db. Error: " + e.getMessage());
                 throw new ResponseStatusException(

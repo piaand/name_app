@@ -12,5 +12,5 @@ public interface NameRepository extends JpaRepository<Name, Long> {
     @Query("SELECT SUM(n.amount) FROM Name n")
     Long findTotalAmount();
     Name findByName(String firstName);
-    List<Name> findAll();
+    List<Name> findAllByOrderByAmountDesc();
 }
