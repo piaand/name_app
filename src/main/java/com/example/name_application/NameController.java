@@ -11,6 +11,8 @@ import java.util.List;
  * REST API controller. Collection of different end-points user may call.
  * /names/amount - return total amount of all names in the database
  * /names/{name} - return amount of the name that is give as a path variable
+ * /names - return all the names and their amounts, sort by popularity
+ * /names/alphabetical - return all the names sorted alphabetically
  */
 @RestController
 public class NameController {
@@ -35,5 +37,8 @@ public class NameController {
     public JsonNode getNames() {
         return nameService.getAllNamesAndAmounts();
     }
+
+    @GetMapping("/names/alphabetical")
+    public JsonNode getNamesAlphabetical() { return nameService.getAllNamesSortedAlphabetically(); }
 
 }

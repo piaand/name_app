@@ -3,7 +3,6 @@ package com.example.name_application;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -44,12 +43,50 @@ public class NameService {
         }
     }
 
+    public JsonNode getAllNamesSortedAlphabetically(){
+        try {
+            logger.info("Request to find all names alphabetically in progress.");
+            List<Name> listNames = nameRepository.findAllByOrderByNameAsc();
+            List<String> wrappedNames= wrapper.convertNamesToWrappedNames(listNames);
+            return turnStringListToJson(wrappedNames);
+        } catch (ConversionFailedException e) {
+            logger.severe("Cannot return namelist from db. Error: " + e.getMessage());
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_IMPLEMENTED, "Result cannot be returned."
+            );
+        }
+    }
+
     public void saveNameFromJson(Name name) {
         nameRepository.save(name);
     }
 
     public void emptyDatabase() {
         nameRepository.deleteAll();
+    }
+
+    public ArrayNode turnStringListToJson(List<String> names) {
+        if (names.isEmpty()) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "No name is found"
+            );
+        } else {
+            try {
+                logger.info("Start parsing string list to json array");
+                ObjectMapper mapper = new ObjectMapper();
+                ArrayNode arrayNode = mapper.createArrayNode();
+                for (String name : names) {
+                    JsonNode node = mapper.convertValue(name, JsonNode.class);
+                    arrayNode.add(node);
+                }
+                return arrayNode;
+            } catch (Exception e) {
+                logger.severe("Cannot return string list as json. Error: " + e.getMessage());
+                throw new ResponseStatusException(
+                        HttpStatus.NOT_IMPLEMENTED, "Result cannot be returned."
+                );
+            }
+        }
     }
 
     public ArrayNode turnNameListToJson(List<NameWrapper> names) {
@@ -80,7 +117,7 @@ public class NameService {
             try {
                 logger.info("Request to find all names and amounts in progress.");
                 List<Name> listNames = nameRepository.findAllByOrderByAmountDesc();
-                List<NameWrapper> wrappedNames= wrapper.convertNamesToWrappedNames(listNames);
+                List<NameWrapper> wrappedNames= wrapper.convertNamesToWrappedNamesAndAmount(listNames);
                 return turnNameListToJson(wrappedNames);
             } catch (ConversionFailedException e) {
                 logger.severe("Cannot return namelist from db. Error: " + e.getMessage());

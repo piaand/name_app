@@ -13,4 +13,5 @@ public interface NameRepository extends JpaRepository<Name, Long> {
     Long findTotalAmount();
     Name findByName(String firstName);
     List<Name> findAllByOrderByAmountDesc();
+    List<Name> findAllByOrderByNameAsc();
 }
