@@ -1,13 +1,13 @@
 package com.example.name_application;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.util.logging.Logger;
 
 import static org.junit.Assert.*;
 
@@ -16,7 +16,7 @@ import static org.junit.Assert.*;
  */
 
 @ActiveProfiles("test")
-@RunWith(SpringRunner.class)
+@RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
 class NameApplicationTests {
 	private final Name name;
@@ -24,9 +24,12 @@ class NameApplicationTests {
 	private final Name name3;
 	private final Name name4;
 	private final Name name5;
+	private final String firstName = "Pia";
+	private final Long amount = 7L;
+	private static final Logger logger = Logger.getLogger(NameApplication.class.getName());
 
 	public NameApplicationTests() {
-		this.name = new Name(7L, "Pia");
+		this.name = new Name(amount, firstName);
 		this.name2 = new Name(10L, "Lasse");
 		this.name3 = new Name(3L, "Hanna");
 		this.name4 = new Name(1L, "Maaret");
@@ -39,7 +42,7 @@ class NameApplicationTests {
 	@Autowired
 	NameService nameService;
 
-	@Before
+	@BeforeEach
 	public void initTestDB() {
 		//Save 5 names to repository
 		nameRepository.save(name);
@@ -50,7 +53,7 @@ class NameApplicationTests {
 
 	}
 
-	@After
+	@AfterEach
 	public void cleanTestDB() {
 		nameRepository.deleteAll();
 	}
@@ -70,8 +73,16 @@ class NameApplicationTests {
 	}
 
 	@Test
-	void contextLoads() {
+	void contextLoads() { }
 
+	@Test
+	public void testGetGivenNameAmount() {
+		Name queryResult = nameRepository.findByName(firstName);
+		Assertions.assertNotNull(queryResult);
+		Long result = nameService.getGivenNameAmount(firstName);
+		assertEquals(queryResult.getName(), firstName);
+		assertEquals(queryResult.getAmount(), amount);
+		assertEquals(queryResult.getAmount(), result);
 	}
 
 }
