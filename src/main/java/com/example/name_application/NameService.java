@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -125,5 +126,19 @@ public class NameService {
                         HttpStatus.NOT_IMPLEMENTED, "Result cannot be returned."
                 );
             }
+        }
+
+        public ArrayNode listEndPoints() {
+            String endPoint1 = "/names - return all the names and their amounts, sort by popularity";
+            String endPoint2 = "/names/alphabetical - return all the names sorted alphabetically";
+            String endPoint3 = "/names/{name} - return amount of the name that is give as a path variable";
+            String endPoint4 = "/names/alphabetical - return all the names sorted alphabetically";
+
+            List<String> list = new ArrayList<>();
+            list.add(endPoint1);
+            list.add(endPoint2);
+            list.add(endPoint3);
+            list.add(endPoint4);
+            return turnStringListToJson(list);
         }
     }

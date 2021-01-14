@@ -23,6 +23,9 @@ public class NameController {
         this.nameService = nameService;
     }
 
+    @GetMapping("/")
+    public JsonNode listEndPoints() { return nameService.listEndPoints(); }
+
     @GetMapping("/names/amount")
     public Long getTotalAmountOfNames() {
         return nameService.getTotalAmountOfNames();
