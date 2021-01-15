@@ -27,12 +27,12 @@ public class NameController {
     public JsonNode listEndPoints() { return nameService.listEndPoints(); }
 
     @GetMapping("/names/amount")
-    public Long getTotalAmountOfNames() {
+    public JsonNode getTotalAmountOfNames() {
         return nameService.getTotalAmountOfNames();
     }
 
     @GetMapping("/names/{name}")
-    public Long getName(@PathVariable String name) {
+    public JsonNode getName(@PathVariable String name) {
         return nameService.getGivenNameAmount(name);
     }
 

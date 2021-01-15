@@ -3,6 +3,7 @@ package com.example.name_application;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -26,13 +27,13 @@ public class NameService {
         this.wrapper = wrapper;
     }
 
-    public Long getTotalAmountOfNames() {
+    public JsonNode getTotalAmountOfNames() {
         Long result = nameRepository.findTotalAmount() != null ? nameRepository.findTotalAmount() : 0L;
-        return result;
+        return turnLongToJson(result);
     }
 
     //Finds the first name that matches the target name or sends responses code 404 if no name found
-    public Long getGivenNameAmount(String targetName) {
+    public JsonNode getGivenNameAmount(String targetName) {
         Name result = nameRepository.findByName(targetName);
         if (result == null) {
             throw new ResponseStatusException(
@@ -40,7 +41,7 @@ public class NameService {
             );
         } else {
             Long amount = result.getAmount();
-            return amount;
+            return turnLongToJson(amount);
         }
     }
 
@@ -64,6 +65,21 @@ public class NameService {
 
     public void emptyDatabase() {
         nameRepository.deleteAll();
+    }
+
+    public JsonNode turnLongToJson(Long number) {
+        try {
+            logger.info("Start parsing number to json array");
+            ObjectMapper mapper = new ObjectMapper();
+            ObjectNode result = mapper.createObjectNode();
+            result.put("totalAmount", number);
+            return result;
+        } catch (Exception e) {
+            logger.severe("Cannot return number as json. Error: " + e.getMessage());
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_IMPLEMENTED, "Result cannot be returned."
+            );
+        }
     }
 
     public ArrayNode turnStringListToJson(List<String> names) {

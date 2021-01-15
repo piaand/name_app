@@ -46,6 +46,17 @@ class NameApplicationTests {
 
 	}
 
+	private	Long returnLongFromJson(JsonNode node) {
+		try {
+			String result = node.get("totalAmount").toString();
+			Long number = Long.parseLong(result);
+			return number;
+		} catch(Exception e) {
+			LOGGER.severe("Conversion of JsonNode "+ node + " to number didn't succeed. Error: " + e);
+			return null;
+		}
+	}
+
 	@Autowired
 	NameRepository nameRepository;
 
@@ -92,16 +103,18 @@ class NameApplicationTests {
 	public void testTotalAmount() {
 		LOGGER.info("Run test testTotalAmount");
 		Long amountRepository = nameRepository.findTotalAmount();
-		Long amountService = nameService.getTotalAmountOfNames();
-		assertEquals(amountRepository, amountService);
+		JsonNode amountService = nameService.getTotalAmountOfNames();
+		Long amount = returnLongFromJson(amountService);
+		assertEquals(amountRepository, amount);
 	}
 
 	@Test
 	public void testTotalAmountEmptyDB() {
 		LOGGER.info("Run test testTotalAmountEmptyDB");
 		nameRepository.deleteAll();
-		Long amountService = nameService.getTotalAmountOfNames();
-		assertSame(0L, amountService);
+		JsonNode amountService = nameService.getTotalAmountOfNames();
+		Long amount = returnLongFromJson(amountService);
+		assertSame(0L, amount);
 	}
 
 	@Test
@@ -109,7 +122,8 @@ class NameApplicationTests {
 		LOGGER.info("Run test testGetGivenNameAmount");
 		Name queryResult = nameRepository.findByName(firstName);
 		Assertions.assertNotNull(queryResult);
-		Long result = nameService.getGivenNameAmount(firstName);
+		JsonNode node = nameService.getGivenNameAmount(firstName);
+		Long result = returnLongFromJson(node);
 		assertEquals(queryResult.getName(), firstName);
 		assertEquals(queryResult.getAmount(), amount);
 		assertEquals(queryResult.getAmount(), result);
@@ -121,7 +135,7 @@ class NameApplicationTests {
 		Name queryResult = nameRepository.findByName("Matilda");
 		Assertions.assertNull(queryResult);
 		Assertions.assertThrows(ResponseStatusException.class, () -> {
-			Long result = nameService.getGivenNameAmount("Matilda");
+			JsonNode result = nameService.getGivenNameAmount("Matilda");
 		});
 	}
 
