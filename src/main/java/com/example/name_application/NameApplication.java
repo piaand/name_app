@@ -37,7 +37,7 @@ public class NameApplication {
 	@Autowired
 	private org.springframework.boot.ApplicationArguments applicationArguments;
 
-	@Value("${file.path}")
+	@Value("${file.path:#{null}}")
 	private String filePathGiven;
 
 	public static void main(String[] args) {
@@ -50,7 +50,6 @@ public class NameApplication {
 	CommandLineRunner runner(NameService nameService) {
 		return args -> {
 			//Setting the logging configurations for the whole application.
-			System.out.println(filePathGiven);
 			configurations.setConfig();
 
 			ObjectMapper mapper = new ObjectMapper();
@@ -59,7 +58,7 @@ public class NameApplication {
 			File inputFile = new File(pathToResource + filePathGiven);
 			String filePath = filePathGiven;
 			if(!inputFile.exists()) {
-				logger.warning("Given filepath is not found from " + filePathGiven + " fall back to default filepath");
+				logger.warning("Given filepath is not found from " + filePathGiven + " or it is not assigned. Fall back to default filepath");
 				filePath = filePathDefault;
 				File defaultInputFile = new File(pathToResource + filePath);
 				if(!defaultInputFile.exists()) {
