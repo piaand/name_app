@@ -1,6 +1,7 @@
 package com.example.name_application;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -44,6 +46,17 @@ class NameApplicationTests {
 		this.name4 = new Name(1L, "Maaret");
 		this.name5 = new Name(8L, "Kalle");
 
+	}
+
+	private	Long returnLongFromJson(JsonNode node) {
+		try {
+			String result = node.get("totalAmount").toString();
+			Long number = Long.parseLong(result);
+			return number;
+		} catch(Exception e) {
+			LOGGER.severe("Conversion of JsonNode "+ node + " to number didn't succeed. Error: " + e);
+			return null;
+		}
 	}
 
 	@Autowired
@@ -92,16 +105,18 @@ class NameApplicationTests {
 	public void testTotalAmount() {
 		LOGGER.info("Run test testTotalAmount");
 		Long amountRepository = nameRepository.findTotalAmount();
-		Long amountService = nameService.getTotalAmountOfNames();
-		assertEquals(amountRepository, amountService);
+		JsonNode amountService = nameService.getTotalAmountOfNames();
+		Long amount = returnLongFromJson(amountService);
+		assertEquals(amountRepository, amount);
 	}
 
 	@Test
 	public void testTotalAmountEmptyDB() {
 		LOGGER.info("Run test testTotalAmountEmptyDB");
 		nameRepository.deleteAll();
-		Long amountService = nameService.getTotalAmountOfNames();
-		assertSame(0L, amountService);
+		JsonNode amountService = nameService.getTotalAmountOfNames();
+		Long amount = returnLongFromJson(amountService);
+		assertSame(0L, amount);
 	}
 
 	@Test
@@ -109,7 +124,8 @@ class NameApplicationTests {
 		LOGGER.info("Run test testGetGivenNameAmount");
 		Name queryResult = nameRepository.findByName(firstName);
 		Assertions.assertNotNull(queryResult);
-		Long result = nameService.getGivenNameAmount(firstName);
+		JsonNode node = nameService.getGivenNameAmount(firstName);
+		Long result = returnLongFromJson(node);
 		assertEquals(queryResult.getName(), firstName);
 		assertEquals(queryResult.getAmount(), amount);
 		assertEquals(queryResult.getAmount(), result);
@@ -121,7 +137,7 @@ class NameApplicationTests {
 		Name queryResult = nameRepository.findByName("Matilda");
 		Assertions.assertNull(queryResult);
 		Assertions.assertThrows(ResponseStatusException.class, () -> {
-			Long result = nameService.getGivenNameAmount("Matilda");
+			JsonNode result = nameService.getGivenNameAmount("Matilda");
 		});
 	}
 
@@ -154,7 +170,7 @@ class NameApplicationTests {
 		assertFalse(listNames.isEmpty());
 
 		if (listNames.size() > 1) {
-			JsonNode node = nameService.getAllNamesAndAmounts();
+			JsonNode node = nameService.getAllNamesAndAmounts().get("data");
 			String firstAmountString = node.get(0).get("amount").toString();
 			String secondAmountString = node.get(1).get("amount").toString();
 			Integer firstAmount = Integer.parseInt(firstAmountString);
@@ -171,12 +187,63 @@ class NameApplicationTests {
 		assertFalse(listNames.isEmpty());
 
 		if(listNames.size() > 1) {
-			JsonNode node = nameService.getAllNamesSortedAlphabetically();
+			JsonNode node = nameService.getAllNamesSortedAlphabetically().get("data");
 			String firstName = node.get(0).toString();
 			String secondName = node.get(1).toString();
 
 			assertTrue(firstName.compareTo(secondName) <= 0);
 		}
-
 	}
+
+	/*
+	* This test is for in case case insensitive search is build
+	 */
+
+	/*
+	@Test
+	public void testCaseInsensitiveSort() {
+		LOGGER.info("Run test testCaseInsensitiveSort");
+		String smallFirstName = "lasse";
+		Long smallAmount = 1L;
+		Name smallName = new Name(smallAmount, smallFirstName);
+		nameRepository.save(smallName);
+
+		List<Name> listNames = nameRepository.findAllByOrderByNameAsc();
+		assertFalse(listNames.isEmpty());
+		assertTrue(listNames.contains(name));
+		assertTrue(listNames.contains(name2));
+		assertTrue(listNames.contains(smallName));
+		if(listNames.size() > 1) {
+			JsonNode node = nameService.getAllNamesSortedAlphabetically().get("data");
+
+			if (node.isArray()) {
+				Integer i = 0;
+				Integer small = -1;
+				Integer lasse = -1;
+				Integer pia = -1;
+
+				//comparison is done with method contains since the arraynode String is not same as the original String
+				//there is some byte related contents before or after the node string
+				for (final JsonNode objNode : node) {
+					String resultName = objNode.toString();
+					if(resultName.contains(smallFirstName)) {
+						small = i;
+					} else if (resultName.contains(firstName)) {
+						pia = i;
+					} else if (resultName.contains(firstName2)) {
+						lasse = i;
+					}
+					i++;
+				}
+				assertTrue(small != -1 && lasse != -1 && pia != -1);
+				assertTrue(small < pia);
+				assertTrue(small < lasse);
+			} else {
+				//This should not happen, node should be an array
+				assertTrue(false);
+			}
+		}
+	}
+
+	 */
 }

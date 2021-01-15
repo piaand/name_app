@@ -3,6 +3,7 @@ package com.example.name_application;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -26,13 +27,13 @@ public class NameService {
         this.wrapper = wrapper;
     }
 
-    public Long getTotalAmountOfNames() {
+    public JsonNode getTotalAmountOfNames() {
         Long result = nameRepository.findTotalAmount() != null ? nameRepository.findTotalAmount() : 0L;
-        return result;
+        return turnLongToJson(result);
     }
 
     //Finds the first name that matches the target name or sends responses code 404 if no name found
-    public Long getGivenNameAmount(String targetName) {
+    public JsonNode getGivenNameAmount(String targetName) {
         Name result = nameRepository.findByName(targetName);
         if (result == null) {
             throw new ResponseStatusException(
@@ -40,7 +41,7 @@ public class NameService {
             );
         } else {
             Long amount = result.getAmount();
-            return amount;
+            return turnLongToJson(amount);
         }
     }
 
@@ -66,7 +67,22 @@ public class NameService {
         nameRepository.deleteAll();
     }
 
-    public ArrayNode turnStringListToJson(List<String> names) {
+    public JsonNode turnLongToJson(Long number) {
+        try {
+            logger.info("Start parsing number to json array");
+            ObjectMapper mapper = new ObjectMapper();
+            ObjectNode result = mapper.createObjectNode();
+            result.put("totalAmount", number);
+            return result;
+        } catch (Exception e) {
+            logger.severe("Cannot return number as json. Error: " + e.getMessage());
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_IMPLEMENTED, "Result cannot be returned."
+            );
+        }
+    }
+
+    public ObjectNode turnStringListToJson(List<String> names) {
         if (names.isEmpty()) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "No name is found"
@@ -80,7 +96,9 @@ public class NameService {
                     JsonNode node = mapper.convertValue(name, JsonNode.class);
                     arrayNode.add(node);
                 }
-                return arrayNode;
+                ObjectNode resultNode = mapper.createObjectNode();
+                resultNode.set("data", arrayNode);
+                return resultNode;
             } catch (Exception e) {
                 logger.severe("Cannot return string list as json. Error: " + e.getMessage());
                 throw new ResponseStatusException(
@@ -90,7 +108,7 @@ public class NameService {
         }
     }
 
-    public ArrayNode turnNameListToJson(List<NameWrapper> names) {
+    public ObjectNode turnNameListToJson(List<NameWrapper> names) {
         if (names.isEmpty()) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "No name is found"
@@ -104,7 +122,9 @@ public class NameService {
                     JsonNode node = mapper.convertValue(name, JsonNode.class);
                     arrayNode.add(node);
                 }
-                return arrayNode;
+                ObjectNode resultNode = mapper.createObjectNode();
+                resultNode.set("data", arrayNode);
+                return resultNode;
             } catch (Exception e) {
                 logger.severe("Cannot return namelist as json. Error: " + e.getMessage());
                 throw new ResponseStatusException(
@@ -128,11 +148,11 @@ public class NameService {
             }
         }
 
-        public ArrayNode listEndPoints() {
+        public ObjectNode listEndPoints() {
             String endPoint1 = "/names - return all the names and their amounts, sort by popularity";
             String endPoint2 = "/names/alphabetical - return all the names sorted alphabetically";
             String endPoint3 = "/names/{name} - return amount of the name that is give as a path variable";
-            String endPoint4 = "/names/alphabetical - return all the names sorted alphabetically";
+            String endPoint4 = "/names/amount - return the total amount of all names in the record";
 
             List<String> list = new ArrayList<>();
             list.add(endPoint1);
