@@ -82,7 +82,7 @@ public class NameService {
         }
     }
 
-    public ArrayNode turnStringListToJson(List<String> names) {
+    public ObjectNode turnStringListToJson(List<String> names) {
         if (names.isEmpty()) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "No name is found"
@@ -96,7 +96,9 @@ public class NameService {
                     JsonNode node = mapper.convertValue(name, JsonNode.class);
                     arrayNode.add(node);
                 }
-                return arrayNode;
+                ObjectNode resultNode = mapper.createObjectNode();
+                resultNode.set("data", arrayNode);
+                return resultNode;
             } catch (Exception e) {
                 logger.severe("Cannot return string list as json. Error: " + e.getMessage());
                 throw new ResponseStatusException(
@@ -106,7 +108,7 @@ public class NameService {
         }
     }
 
-    public ArrayNode turnNameListToJson(List<NameWrapper> names) {
+    public ObjectNode turnNameListToJson(List<NameWrapper> names) {
         if (names.isEmpty()) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "No name is found"
@@ -120,7 +122,9 @@ public class NameService {
                     JsonNode node = mapper.convertValue(name, JsonNode.class);
                     arrayNode.add(node);
                 }
-                return arrayNode;
+                ObjectNode resultNode = mapper.createObjectNode();
+                resultNode.set("data", arrayNode);
+                return resultNode;
             } catch (Exception e) {
                 logger.severe("Cannot return namelist as json. Error: " + e.getMessage());
                 throw new ResponseStatusException(
@@ -144,11 +148,11 @@ public class NameService {
             }
         }
 
-        public ArrayNode listEndPoints() {
+        public ObjectNode listEndPoints() {
             String endPoint1 = "/names - return all the names and their amounts, sort by popularity";
             String endPoint2 = "/names/alphabetical - return all the names sorted alphabetically";
             String endPoint3 = "/names/{name} - return amount of the name that is give as a path variable";
-            String endPoint4 = "/names/alphabetical - return all the names sorted alphabetically";
+            String endPoint4 = "/names/amount - return the total amount of all names in the record";
 
             List<String> list = new ArrayList<>();
             list.add(endPoint1);

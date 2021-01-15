@@ -168,7 +168,7 @@ class NameApplicationTests {
 		assertFalse(listNames.isEmpty());
 
 		if (listNames.size() > 1) {
-			JsonNode node = nameService.getAllNamesAndAmounts();
+			JsonNode node = nameService.getAllNamesAndAmounts().get("data");
 			String firstAmountString = node.get(0).get("amount").toString();
 			String secondAmountString = node.get(1).get("amount").toString();
 			Integer firstAmount = Integer.parseInt(firstAmountString);
@@ -185,7 +185,7 @@ class NameApplicationTests {
 		assertFalse(listNames.isEmpty());
 
 		if(listNames.size() > 1) {
-			JsonNode node = nameService.getAllNamesSortedAlphabetically();
+			JsonNode node = nameService.getAllNamesSortedAlphabetically().get("data");
 			String firstName = node.get(0).toString();
 			String secondName = node.get(1).toString();
 
