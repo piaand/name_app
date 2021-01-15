@@ -1,6 +1,7 @@
 package com.example.name_application;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -191,6 +193,57 @@ class NameApplicationTests {
 
 			assertTrue(firstName.compareTo(secondName) <= 0);
 		}
-
 	}
+
+	/*
+	* This test is for in case case insensitive search is build
+	 */
+
+	/*
+	@Test
+	public void testCaseInsensitiveSort() {
+		LOGGER.info("Run test testCaseInsensitiveSort");
+		String smallFirstName = "lasse";
+		Long smallAmount = 1L;
+		Name smallName = new Name(smallAmount, smallFirstName);
+		nameRepository.save(smallName);
+
+		List<Name> listNames = nameRepository.findAllByOrderByNameAsc();
+		assertFalse(listNames.isEmpty());
+		assertTrue(listNames.contains(name));
+		assertTrue(listNames.contains(name2));
+		assertTrue(listNames.contains(smallName));
+		if(listNames.size() > 1) {
+			JsonNode node = nameService.getAllNamesSortedAlphabetically().get("data");
+
+			if (node.isArray()) {
+				Integer i = 0;
+				Integer small = -1;
+				Integer lasse = -1;
+				Integer pia = -1;
+
+				//comparison is done with method contains since the arraynode String is not same as the original String
+				//there is some byte related contents before or after the node string
+				for (final JsonNode objNode : node) {
+					String resultName = objNode.toString();
+					if(resultName.contains(smallFirstName)) {
+						small = i;
+					} else if (resultName.contains(firstName)) {
+						pia = i;
+					} else if (resultName.contains(firstName2)) {
+						lasse = i;
+					}
+					i++;
+				}
+				assertTrue(small != -1 && lasse != -1 && pia != -1);
+				assertTrue(small < pia);
+				assertTrue(small < lasse);
+			} else {
+				//This should not happen, node should be an array
+				assertTrue(false);
+			}
+		}
+	}
+
+	 */
 }
