@@ -1,6 +1,6 @@
 # Name Application interface
 
-API that returns names from database. Build with Java Spring framework, JDK 11. See the deployed version of the interface from [here](https://secret-plains-56145.herokuapp.com/). Heroku might take some time to serve the application so be patient :)
+API that returns names from database. Build with Java Spring framework, JDK 11. See the deployed version of the interface from [here](https://secret-plains-56145.herokuapp.com/api/v1/). Heroku might take some time to serve the application so be patient :)
 
 ## Description
 API is located at `api/v1/` and has four different endpoints.
@@ -18,7 +18,7 @@ Copy the repository and open the project with the IDE of your choice. You can bu
 mvn clean install
 ```
 
-To run the project locally at localhost:8080, run the command:`
+To run the project locally at localhost:8080, run the command:
 ```
 mvn spring-boot:run
 ```
